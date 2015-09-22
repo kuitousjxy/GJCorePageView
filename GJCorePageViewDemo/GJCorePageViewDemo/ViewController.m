@@ -87,9 +87,4 @@
     NSLog(@"页面%ld -> 页面%ld", fromIndex + 1, toIndex + 1);
 }
 
-- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
-{
-    [_pageView reloadData];
-}
-
 @end
