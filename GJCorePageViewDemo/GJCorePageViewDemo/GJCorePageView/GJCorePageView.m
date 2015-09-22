@@ -12,10 +12,8 @@
 #define SUB_PAGEVIEW_TAG 1000
 
 @interface GJCorePageView () <UIScrollViewDelegate>
-{
-    //是否用户滑动切换
-    BOOL _isFromDragging;
-}
+
+@property (nonatomic, assign) BOOL isFromDragging;           //是否用户滑动切换
 @property (nonatomic, assign) NSInteger pageCount;           //总页数
 @property (nonatomic, assign) NSInteger curPage;             //当前页
 @property (nonatomic, retain) GJCorePageTopBar * topBar;     //顶部导航按钮
@@ -98,18 +96,7 @@
     __weak typeof(self) weakSelf = self;
     
     //导航按钮切换
-    if (!_isFromDragging)
-    {
-        [UIView animateWithDuration:0.25f
-                         animations:^{[weakSelf.topBar doTopBarAnimation:toPage];}
-                         completion:^(BOOL finished) {
-                             if (finished) {
-                                 [weakSelf.pageScrollView setContentOffset:CGPointMake(toPage * weakSelf.pageScrollView.width, 0)];
-                                 [weakSelf doSwitchFinishedActionTo:toPage];
-                             }
-                         }];
-    }
-    else
+    if (_isFromDragging)
     {
         UIButton * targetBtn = (UIButton *)[_topBar viewWithTag:toPage + TOP_BUTTON_FLAG];
         CGFloat deltaWidth = CGRectGetMaxX(targetBtn.frame) - _topBar.width;
@@ -122,10 +109,15 @@
         {
             [_topBar setContentOffset:CGPointMake(targetBtn.x, 0) animated:YES];
         }
-        [_topBar doTopBarButtonSwitchAnmation:toPage completionBlock:^{
-            [weakSelf doSwitchFinishedActionTo:toPage];
-        }];
     }
+
+    [_topBar doTopBarButtonSwitchAnmation:toPage completionBlock:^{
+        if (!weakSelf.isFromDragging)
+        {
+            [weakSelf.pageScrollView setContentOffset:CGPointMake(toPage * weakSelf.pageScrollView.width, 0)];
+        }
+        [weakSelf doSwitchFinishedActionTo:toPage];
+    }];
 }
 
 - (void)handlePageViewOfPage:(NSInteger)page
